@@ -15,19 +15,10 @@ class MissionHome extends StatelessWidget {
         title: Row(
           children: [
             const Text(
-              'c:box',
+              'C:BOX',
               style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
             const Spacer(),
-
-            // 검색 버튼
-            IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: () {
-                // TODO: 검색 액션
-              },
-            ),
-            const SizedBox(width: 10),
 
             // 알림 버튼 + 배지
             Stack(
