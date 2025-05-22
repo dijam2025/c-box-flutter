@@ -1,3 +1,5 @@
+import 'package:c_box/screens/login_page.dart';
+import 'package:c_box/screens/signup_page.dart';
 import 'package:flutter/material.dart';
 import 'screens/mission_home.dart';
 
@@ -18,7 +20,11 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         fontFamily: 'Pretendard',
       ),
-      home: const MissionHome(),
+      routes: {
+        '/': (context) => const LoginPage(),
+        '/signup': (context) => const SignupPage(),
+        '/mission_home': (context) => const MissionHome(),
+      },
       debugShowCheckedModeBanner: false,
     );
   }

@@ -6,6 +6,8 @@ plugins {
 }
 
 android {
+    // 버전 추가
+    ndkVersion = "27.0.12077973"
     namespace = "com.example.c_box"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
