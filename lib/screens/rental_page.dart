@@ -176,7 +176,7 @@ class _RentalPageState extends State<RentalPage> {
                 final item = visibleItems[index];
                 return RentalItemCard(
                   item: item,
-                  onRented: (_) {
+                  onRented: (item) {
                     _navigateToQRPage(item); // ✅ 여기로 연결
 
                   },

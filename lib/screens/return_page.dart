@@ -26,14 +26,9 @@ class _ReturnPageState extends State<ReturnPage> {
 
   List<Map<String, dynamic>> get filteredRentals {
     return widget.myRentals
-        .asMap()
-        .entries
-        .where((entry) {
-      final rental = entry.value;
-      return rental['returnedAt'] == null ||
-          rental['statusMessage'] == '대여 중입니다.';
-    })
-        .map((e) => e.value)
+        .where((rental) =>
+    rental['returnedAt'] == null ||
+        rental['statusMessage'] == '대여 중입니다.')
         .toList();
   }
 
@@ -53,32 +48,28 @@ class _ReturnPageState extends State<ReturnPage> {
     if (selectedIndex == null) return;
 
     final selectedItem = filteredRentals[selectedIndex!];
-    final userId = await SharedPreferencesUtil.getUserId();
-    final role = await SharedPreferencesUtil.getUserRole();
+    final itemId = selectedItem['itemId'];
     final now = DateTime.now();
 
-    final body = jsonEncode({
-      "itemId": selectedItem['itemId'],
-      "item": selectedItem['item'],
-      "userId": userId,
-      "role": role,
-      "returnedAt": now.toIso8601String(),
-      "statusMessage": "반납 완료"
-    });
+    // ✅ myRentals에서 해당 아이템 찾아서 상태만 업데이트
+    final realIndex =
+    widget.myRentals.indexWhere((e) => e['itemId'] == itemId);
+    if (realIndex != -1) {
+      widget.myRentals[realIndex]['statusMessage'] = '반납 완료';
+      widget.myRentals[realIndex]['returnedAt'] = now.toIso8601String();
 
-    final url = Uri.parse('http://172.30.1.12:8080/rental/return');
-    final response = await http.post(url, headers: {'Content-Type': 'application/json'}, body: body);
-
-    if (response.statusCode == 200) {
+      // ✅ 외부로 콜백 보내서 Provider에서 removeRental(index) 처리
       if (widget.onReturnComplete != null) {
-        widget.onReturnComplete!(selectedIndex!);
+        widget.onReturnComplete!(realIndex);
       }
+
       _showDialog('반납 완료', '물품이 반납되었습니다.');
     } else {
-      _showDialog('오류', '서버 오류가 발생했습니다.');
+      _showDialog('오류', '물품 정보를 찾을 수 없습니다.');
     }
   }
 
+  /// ✅ 알림창 표시 및 QR 뷰 종료
   void _showDialog(String title, String message) {
     showDialog(
       context: context,
@@ -87,12 +78,17 @@ class _ReturnPageState extends State<ReturnPage> {
         content: Text(message),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              Navigator.pop(context); // 다이얼로그 닫기
+              setState(() {
+                isScanning = false; // 다시 리스트 화면으로 전환
+              });
+            },
             child: const Text('확인'),
           )
         ],
       ),
-    ).then((_) => Navigator.pop(context));
+    );
   }
 
   @override
