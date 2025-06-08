@@ -8,6 +8,8 @@ import '../widgets/category_tab_bar.dart';
 import '../widgets/search_bar.dart';
 import 'rental_register_page.dart';
 import 'rental_qr_page.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 
 class RentalPage extends StatefulWidget {
@@ -39,18 +41,34 @@ class _RentalPageState extends State<RentalPage> {
 
   String searchText = '';
 
-  List<RentalItem> allItems = [
-    RentalItem(itemId: 1, name: 'A', college: '문과대학', quantity: 5),
-    RentalItem(itemId: 2, name: '보조배터리', college: '문과대학', quantity: 2),
-    RentalItem(itemId: 3, name: '드라이버', college: '공과대학', quantity: 0),
-  ];
-
+  List<RentalItem> allItems = [];        // ✅ 서버에서 불러올 리스트로 변경
   List<RentalItem> filteredItems = [];
 
   @override
   void initState() {
     super.initState();
-    filteredItems = allItems;
+    fetchRentalItemsFromBackend();
+  }
+
+  Future<void> fetchRentalItemsFromBackend() async {
+    final response = await http.get(Uri.parse('http://172.30.1.58:8080/rental/list'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+
+      setState(() {
+        allItems = data.map((item) => RentalItem(
+          itemId: item['itemId'],
+          name: item['name'],
+          college: item['college'],
+          quantity: item['quantity'],
+        )).toList();
+
+        _applyCombinedFilter(); // ✅ 필터링도 다시 적용
+      });
+    } else {
+      print('대여 물품 불러오기 실패: ${response.statusCode}');
+    }
   }
 
   // ✅ QR 스캔 후 수량 반영
@@ -63,10 +81,7 @@ class _RentalPageState extends State<RentalPage> {
     );
 
     if (result != null && result is int) {
-      setState(() {
-        final matchedItem = allItems.firstWhere((i) => i.itemId == result);
-        matchedItem.quantity = (matchedItem.quantity - 1).clamp(0, 999);
-      });
+      await fetchRentalItemsFromBackend(); // ✅ 서버 상태로 최신화
     }
   }
   //등록 페이지 이동 + 결과 수량 반영
@@ -159,7 +174,7 @@ class _RentalPageState extends State<RentalPage> {
                 return RentalItemCard(
                   item: item,
                   onRented: (result) {
-                    Navigator.pop(context, result);
+                    _navigateToQRPage(item);
                   },
                 );
               },

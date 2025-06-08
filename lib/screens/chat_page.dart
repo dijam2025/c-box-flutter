@@ -7,6 +7,7 @@ import 'dart:convert';
 import '../widgets/chat_bubble.dart';
 import '../widgets/chat_input_field.dart';
 
+
 class ChatPage extends StatefulWidget {
   final String username;
 
@@ -43,6 +44,11 @@ class _ChatPageState extends State<ChatPage> {
       destination: '/sub/chat/room/1',
       callback: (frame) {
         final message = jsonDecode(frame.body!);
+
+        /*if(widget.username == "유저2"){
+          return;
+        }*/
+
         setState(() {
           messages.add({
             'text': message['content'],
@@ -68,11 +74,13 @@ class _ChatPageState extends State<ChatPage> {
     );
 
     setState(() {
-      messages.add({
-        'text': text,
-        'time': '지금',
-        'isMe': true,
-      });
+      if(widget.username == "유저1") {
+        messages.add({
+          'text': text,
+          'time': '지금',
+          'isMe': true,
+        });
+      }
     });
 
     _controller.clear();
@@ -112,7 +120,7 @@ class _ChatPageState extends State<ChatPage> {
                   child: Icon(Icons.person, color: Colors.white),
                 ),
                 SizedBox(width: 12),
-                Text('안녕하세요', style: TextStyle(fontSize: 16)),
+                Text('C:BOX', style: TextStyle(fontSize: 16)),
               ],
             ),
           ),

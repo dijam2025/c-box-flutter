@@ -27,7 +27,7 @@ class _RentalStatusPageState extends State<RentalStatusPage> {
 
   Future<void> fetchMyRentalStatus() async {
     final userId = await SharedPreferencesUtil.getUserId();
-    final url = Uri.parse('http://172.30.1.58:8080/rental/mypage');
+    final url = Uri.parse('http://172.30.1.58:8080/users/mypage/rental?userId=$userId');
 
     final response = await http.get(url, headers: {
       'Content-Type': 'application/json',
@@ -36,9 +36,7 @@ class _RentalStatusPageState extends State<RentalStatusPage> {
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
       setState(() {
-        myRentals = data.map((r) => r as Map<String, dynamic>)
-            .where((rental) => rental['userId'] == userId)
-            .toList();
+        myRentals = List<Map<String, dynamic>>.from(data); // ✅ 이미 userId로 필터된 상태라고 가정
       });
     } else {
       print('불러오기 실패: ${response.statusCode}');

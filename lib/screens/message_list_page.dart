@@ -21,17 +21,17 @@ class _MessageListPageState extends State<MessageListPage> {
       'time': '오전 9:24',
     },
     {
-      'username': '유저1',
+      'username': '유저2',
       'snippet': '쪽지 보냈습니다.',
       'time': '어제',
     },
     {
-      'username': '유저1',
+      'username': '유저3',
       'snippet': '안녕하세요! 내일 오후 3시쯤 가능하실까요?',
       'time': '2024.4.23',
     },
     {
-      'username': '유저1',
+      'username': '유저4',
       'snippet': '2024.4.22',
       'time': '50분 전',
     },
