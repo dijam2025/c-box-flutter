@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../widgets/comment_item.dart'; // 댓글 컴포넌트 import
+import 'chat_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PostDetailPage extends StatefulWidget {
@@ -191,7 +192,12 @@ class _PostDetailPageState extends State<PostDetailPage> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // 나중에 쪽지 보내기 기능 연결
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatPage(username: widget.author),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.indigo,
