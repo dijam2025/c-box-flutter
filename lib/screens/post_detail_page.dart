@@ -113,14 +113,18 @@ class _PostDetailPageState extends State<PostDetailPage> {
             const SizedBox(height: 16),
 
             // 이미지
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                'assets/images/laptop.jpg',
-                fit: BoxFit.cover,
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 40.0), // 위아래 여백 40씩!
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.asset(
+                    'assets/images/c_box.png',
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 16),
 
             // 댓글 입력창
             Row(
