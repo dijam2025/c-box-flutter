@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class RentalRegisterPage extends StatefulWidget {
@@ -76,23 +75,10 @@ class _RentalRegisterPageState extends State<RentalRegisterPage> {
             ),
             const SizedBox(height: 24),
 
-            // ✅ 등록 버튼 (관리자만 가능)
+            // ✅ 등록 버튼
             ElevatedButton(
-              onPressed: () async {
-                // ✅ SharedPreferences에서 관리자 권한(role) 확인
-                final prefs = await SharedPreferences.getInstance();
-                final role = prefs.getString('role');
-                final token = prefs.getString('token');
-
-                // ✅ 관리자(role == 'ADMIN')가 아닐 경우 등록 차단
-                if (role != 'ADMIN') {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("관리자만 등록할 수 있습니다.")),
-                  );
-                  return;
-                }
-
-                // ✅ 입력값 검사 (물품명, 수량, 단과대)
+              onPressed: () {
+                // ✅ 입력값 확인
                 final itemName = _itemController.text.trim();
                 final quantity = int.tryParse(_quantityController.text.trim()) ?? 0;
 
@@ -103,38 +89,16 @@ class _RentalRegisterPageState extends State<RentalRegisterPage> {
                   return;
                 }
 
-                // ✅ 사용자 ID 가져오기 (백엔드 전송용)
-                final userId = prefs.getString('userId');
-
-                // ✅ 백엔드로 POST 요청
-                final url = Uri.parse('http://172.30.1.12:8080/rental/rent'); // 실제 주소로 수정
-                final body = jsonEncode({
+                // ✅ 등록할 데이터 생성 (itemId는 현재 시간을 고유값으로 사용)
+                final newItem = {
+                  'itemId': DateTime.now().millisecondsSinceEpoch,
                   'item': itemName,
                   'college': selectedCollege,
                   'quantity': quantity,
-                  'userId': userId,
-                });
+                };
 
-                final response = await http.post(
-                  url,
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer $token', //JWT 추가
-                  },
-                  body: body,
-                );
-
-                // ✅ 응답 처리
-                if (response.statusCode == 200) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('물품이 등록되었습니다.')),
-                  );
-                  Navigator.pop(context);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('등록 실패. 다시 시도해주세요.')),
-                  );
-                }
+                // ✅ RentalPage로 데이터 전달 후 돌아감
+                Navigator.pop(context, newItem);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.indigo,

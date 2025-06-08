@@ -57,12 +57,13 @@ class _QRScanPageState extends State<QRScanPage> {
         };
 
         _showDialog('성공', '대여 완료되었습니다.', () {
-          Provider.of<RentalStatusProvider>(context, listen: false).addRental(rentalInfo);
-          Navigator.pop(context, rentalInfo);
+          Navigator.pop(context, rentalInfo); // ✅ 수정됨: 대여 결과를 상위에 전달
         });
       } else {
         _showDialog('성공', '반납 완료되었습니다.', () {
-          Navigator.pop(context, {"returnedItemId": itemId});
+          Navigator.pop(context, {
+            "returnedItemId": itemId,
+          });
         });
       }
     });

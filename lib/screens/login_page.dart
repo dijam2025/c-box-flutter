@@ -15,42 +15,50 @@ class _LoginPageState extends State<LoginPage> {
   final _pwController = TextEditingController();
 
   Future<void> _login() async {
-    final url = Uri.parse('http://172.30.1.12:8080/users/login');
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'userId': _idController.text,
-        'password': _pwController.text,
-      }),
-    );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final role = data['role']; // ✅ role 추출
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('userId', _idController.text);
-      await prefs.setString('role', role); // 필요하면 저장
-
-      if (!context.mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(data['message'] ?? '로그인 성공')),
+    final url = Uri.parse('http://172.31.128.73:8080/users/login');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'userId': _idController.text,
+          'password': _pwController.text,
+        }),
       );
 
-      // ✅ 역할에 따라 페이지 이동
-      if (role == 'ADMIN') {
+      print("응답 상태 코드: ${response.statusCode}");
+      print("응답 본문: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final name = data['name'];
+        final role = data['role'];
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('username', name);
+        await prefs.setString('userId', _idController.text);
+        await prefs.setString('role', role);
+
+        if (!context.mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(data['message'] ?? '로그인 성공')),
+        );
+
         Navigator.pushReplacementNamed(context, '/home_menu_page');
       } else {
-        Navigator.pushReplacementNamed(context, '/home_menu_page');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("로그인 실패")),
+        );
       }
-    } else {
+    } catch (e) {
+      print("에러 발생: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("로그인 실패")),
+        const SnackBar(content: Text("서버 오류 또는 네트워크 오류")),
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +83,10 @@ class _LoginPageState extends State<LoginPage> {
                 backgroundColor: Colors.indigo,
                 foregroundColor: Colors.white,
               ),
-              onPressed: _login,
+              onPressed: () {
+                print("로그인 버튼 눌림!"); // ✅ 이거 추가
+                _login();
+              },
               child: const Text("로그인"),
             ),
             TextButton(

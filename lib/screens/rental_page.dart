@@ -10,6 +10,7 @@ import '../widgets/search_bar.dart';
 import 'rental_register_page.dart';
 
 import 'rental_qr_page.dart';
+import 'rental_status_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -58,7 +59,7 @@ class _RentalPageState extends State<RentalPage> {
   }
 
   Future<void> fetchRentalItemsFromBackend() async {
-    final response = await http.get(Uri.parse('http://172.30.1.53/rental/list'));
+    final response = await http.get(Uri.parse('http://172.31.128.73/rental/list'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
@@ -106,7 +107,7 @@ class _RentalPageState extends State<RentalPage> {
       setState(() {
         allItems.add(RentalItem(
           itemId: result['itemId'],
-          name: result['name'],
+          name: result['item'],
           college: result['college'],
           quantity: result['quantity'],
         ));
@@ -129,6 +130,19 @@ class _RentalPageState extends State<RentalPage> {
         final matchedItem = allItems.firstWhere((i) => i.itemId == item.itemId);
         matchedItem.quantity = (matchedItem.quantity - 1).clamp(0, 999);
       });
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => RentalStatusPage(
+            rental: {
+              'item': item.name,
+              'dueDate': DateTime.now().add(const Duration(days: 7)).toIso8601String(),
+              'statusMessage': '대여 중',
+            },
+          ),
+        ),
+      );
     }
   }
 
