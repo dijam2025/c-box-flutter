@@ -28,7 +28,9 @@ class _ChatPageState extends State<ChatPage> {
 
     stompClient = StompClient(
       config: StompConfig.SockJS(
-        url: 'http://172.30.1.58:8080/ws-chat',
+
+        url: 'http://10.0.2.2:8080/ws-chat',
+
         onConnect: onConnectCallback,
         onWebSocketError: (dynamic error) {
           print('WebSocket Error: $error');
@@ -52,7 +54,7 @@ class _ChatPageState extends State<ChatPage> {
         setState(() {
           messages.add({
             'text': message['content'],
-            'time': '지금',
+            'time': DateTime.now().toString(),
             'isMe': false,
           });
         });
@@ -74,13 +76,11 @@ class _ChatPageState extends State<ChatPage> {
     );
 
     setState(() {
-      if(widget.username == "유저1") {
-        messages.add({
-          'text': text,
-          'time': '지금',
-          'isMe': true,
-        });
-      }
+      messages.add({
+        'text': text,
+        'time': DateTime.now().toString(),
+        'isMe': true,
+      });
     });
 
     _controller.clear();

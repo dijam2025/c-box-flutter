@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashPage extends StatefulWidget {
   @override
@@ -10,9 +11,23 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 2), () {
+    _navigateBasedOnLoginStatus();
+  }
+
+  Future<void> _navigateBasedOnLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final userId = prefs.getString('userId'); // 또는 'jwt'로 저장된 토큰
+
+    await Future.delayed(Duration(seconds: 2)); // 로딩 시간
+
+    if (!mounted) return;
+
+    if (userId != null && userId.isNotEmpty) {
       Navigator.pushReplacementNamed(context, '/home_menu_page');
-    });
+    } else {
+      Navigator.pushReplacementNamed(context, '/login');
+    }
   }
 
   @override

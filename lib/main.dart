@@ -1,3 +1,4 @@
+import 'package:c_box/screens/rental_status_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,6 +14,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
+        ChangeNotifierProvider(create: (_) => RentalStatusProvider()),
       ],
       child: const MyApp(),
     ),
@@ -44,7 +46,7 @@ class MyApp extends StatelessWidget {
       ),
     ),
 
-      // ✅ SplashPage가 앱 시작 화면
+      // SplashPage가 앱 시작 화면
       home: SplashPage(),
 
       routes: {
