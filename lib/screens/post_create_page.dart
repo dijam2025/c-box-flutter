@@ -16,7 +16,7 @@ class _PostCreatePageState extends State<PostCreatePage> {
   String? _selectedCategory;
   bool _allowComments = true;
 
-  final List<String> _categories = ['알바', '같이 하기', '정보 요청'];
+  final List<String> _categories = ['전체', '요청', '수업', '기타'];
 
   @override
   Widget build(BuildContext context) {
