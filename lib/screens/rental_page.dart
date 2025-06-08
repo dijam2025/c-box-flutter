@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/category_provider.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../widgets/custom_app_bar_title.dart';
@@ -57,7 +58,7 @@ class _RentalPageState extends State<RentalPage> {
   }
 
   Future<void> fetchRentalItemsFromBackend() async {
-    final response = await http.get(Uri.parse('http://172.30.1.58:8080/rental/list'));
+    final response = await http.get(Uri.parse('http://172.30.1.53/rental/list'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
@@ -187,13 +188,26 @@ class _RentalPageState extends State<RentalPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _navigateToCreatePage,
+        onPressed: () async {
+          final prefs = await SharedPreferences.getInstance();
+          final role = prefs.getString('role');
+
+          if (role != 'ADMIN') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("관리자만 등록할 수 있습니다.")),
+            );
+            return;
+          }
+
+          _navigateToCreatePage(); // ✅ ADMIN일 경우에만 페이지 이동
+        },
         backgroundColor: Colors.indigo,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(50),
         ),
         child: const Icon(Icons.add, size: 32, color: Colors.white),
       ),
+
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: const BottomNavBar(),
     );
