@@ -16,7 +16,7 @@ class MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<MyPage> {
-  String userName = '사용자';
+  String userName = '장준태';
 
   @override
   void initState() {
@@ -33,7 +33,7 @@ class _MyPageState extends State<MyPage> {
       print('hi');
 
       final response = await http.get(
-        Uri.parse('http://172.30.1.12:8080/users/mypage'),
+        Uri.parse('http://172.31.128.73:8080/users/mypage'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ class _MyPageState extends State<MyPage> {
         }
       } else if (response.statusCode == 403 || response.statusCode == 401) {
         await prefs.clear();
-        _goToLogin();
+        //_goToLogin();
       } else {
         print('서버 응답 오류: ${response.statusCode}');
       }
@@ -61,15 +61,15 @@ class _MyPageState extends State<MyPage> {
   }
 
 
-  void _goToLogin() {
+  /*void _goToLogin() {
     if (!mounted) return;
     Navigator.pushReplacementNamed(context, '/login');
-  }
+  }*/
 
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
-    _goToLogin();
+    //_goToLogin();
   }
 
   @override

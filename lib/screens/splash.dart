@@ -24,7 +24,7 @@ class _SplashPageState extends State<SplashPage> {
     if (!mounted) return;
 
     if (userId != null && userId.isNotEmpty) {
-      Navigator.pushReplacementNamed(context, '/home_menu_page');
+      Navigator.pushReplacementNamed(context, '/login');
     } else {
       Navigator.pushReplacementNamed(context, '/login');
     }
