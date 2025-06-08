@@ -171,24 +171,59 @@ class _MainContentState extends State<MainContent> {
     final hotPosts = [
       {
         'title': '디버깅 중 잠시만요',
-        'subtitle': '댓글 12',
+        'subtitle': '댓글 2',
         'category': '요청',
         'author': '익명1',
-        'content': '디버깅 12시간 째 실화냐?'
+        'content': '디버깅 12시간 째 실화냐?',
+        'commentsList': [
+          {
+            'username': '컴공',
+            'comment': '수고해',
+            'time': DateTime.now().subtract(Duration(minutes: 5)),
+          },
+          {
+            'username': '레몬',
+            'comment': '도와줄까?',
+            'time': DateTime.now().subtract(Duration(minutes: 2)),
+          },
+        ]
       },
       {
         'title': '자바 스터디 하실 분 구합니다',
-        'subtitle': '댓글 8',
+        'subtitle': '댓글 2',
         'category': '스터디',
         'author': '김자바',
-        'content': '자바 중급 스터디 할 사람 DM 주세요~'
+        'content': '자바 중급 스터디 할 사람 DM 주세요~','commentsList': [
+        {
+          'username': '스프링러버',
+          'comment': '참여하고 싶어요!',
+          'time': DateTime.now().subtract(Duration(minutes: 5)),
+        },
+        {
+          'username': '자바신',
+          'comment': 'DM 보냈습니다!',
+          'time': DateTime.now().subtract(Duration(minutes: 2)),
+        },
+      ]
       },
       {
         'title': '3-5시 충전기 빌려주실 분?',
-        'subtitle': '댓글 20',
+        'subtitle': '댓글 2',
         'category': '요청',
         'author': '배터리0퍼',
-        'content': '아이폰 충전기 빌릴 수 있을까요? 3-5시까지 급합니다!'
+        'content': '아이폰 충전기 빌릴 수 있을까요? 3-5시까지 급합니다!',
+        'commentsList': [
+        {
+        'username': '나나',
+        'comment': '무슨타입임?',
+        'time': DateTime.now().subtract(Duration(minutes: 5)),
+        },
+        {
+        'username': 'ㅡ',
+        'comment': '어디쪽임?',
+        'time': DateTime.now().subtract(Duration(minutes: 2)),
+        },
+        ]
       },
     ];
 
@@ -209,20 +244,22 @@ class _MainContentState extends State<MainContent> {
             itemBuilder: (context, idx) {
               final post = hotPosts[idx];
               return HotPostCard(
-                title: post['title']!,
-                subtitle: post['subtitle']!,
+                title: post['title'].toString(),
+                subtitle: post['subtitle'].toString(),
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => PostDetailPage(
-                        title: post['title']!,
-                        category: post['category']!,
-                        author: post['author']!,
-                        content: post['content']!,
-                        commentsList: (post['commentsList'] as List<dynamic>)
-                            .map((item) => item as Map<String, dynamic>)
-                            .toList(),
+                        title: post['title'].toString(),
+                        category: post['category'].toString(),
+                        author: post['author'].toString(),
+                        content: post['content'].toString(),
+                        commentsList: (post['commentsList'] is List)
+                            ? (post['commentsList'] as List)
+                            .map((e) => Map<String, dynamic>.from(e as Map))
+                            .toList()
+                            : [],
                       ),
                     ),
                   );
@@ -268,7 +305,11 @@ class _MainContentState extends State<MainContent> {
                     ? DateTime.parse(post['createdAt'])
                     : post['createdAt'] as DateTime,
                 content: post['content'],
-                commentsList: post['commentsList'],
+                commentsList: (post['commentsList'] is List)
+                    ? (post['commentsList'] as List)
+                    .map((e) => Map<String, dynamic>.from(e as Map))
+                    .toList()
+                    : [],
                 onCommentChanged: (newCount) => widget.updateComments(originalIndex, newCount),
               );
             },

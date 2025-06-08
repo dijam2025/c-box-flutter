@@ -33,7 +33,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   @override
   void initState() {
     super.initState();
-    _comments = List<Map<String, dynamic>>.from(widget.commentsList);
+    _comments = widget.commentsList.map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e)).toList();
     timeago.setLocaleMessages('ko', timeago.KoMessages());
   }
 

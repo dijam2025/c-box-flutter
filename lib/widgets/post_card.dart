@@ -9,7 +9,7 @@ class PostCard extends StatefulWidget {
   final DateTime createdAt;
   final String author;
   final String content;
-  final List<Map<String, dynamic>> commentsList;
+  final List<Map<String, dynamic>>? commentsList;
   final void Function(int)? onCommentChanged;
 
   const PostCard({
@@ -118,7 +118,7 @@ class _PostCardState extends State<PostCard> {
                         category: widget.category,
                         author: widget.author, // SharedPreferences에서 불러온 이름!
                         content: widget.content,
-                        commentsList: widget.commentsList,
+                        commentsList: widget.commentsList ?? [],
                         onCommentAdded: widget.onCommentChanged, // 댓글 수 전달!
                       ),
                     ),
