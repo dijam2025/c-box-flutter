@@ -23,9 +23,21 @@ class _MissionHomeState extends State<MissionHome> {
       'author': '가나디',
       'category': '수업',
       'title': '이산구조 시험 언제임?',
-      'comments': 3,
+      'comments': 2,
       'createdAt': DateTime.now().subtract(const Duration(minutes: 30)),
-      'content': '컴공 이산구조 01분반 시험 언제임?'
+      'content': '컴공 이산구조 01분반 시험 언제임?',
+      'commentsList': [
+        {
+          'username': '학생1',
+          'comment': '교수님이 공지했어요!',
+          'time': DateTime.now().subtract(Duration(minutes: 10)),
+        },
+        {
+          'username': '농담곰',
+          'comment': '이번 주 금요일이래요!',
+          'time': DateTime.now().subtract(Duration(minutes: 5)),
+        },
+      ],
     },
     {
       'author': '사용자',
@@ -33,7 +45,14 @@ class _MissionHomeState extends State<MissionHome> {
       'title': '공대 3층 화장실에 휴지가 없어요 ㅜㅜㅜ',
       'comments': 1,
       'createdAt': DateTime.now().subtract(const Duration(hours: 2)),
-      'content':'공대 3층 여자화장실 휴지 가져다주실 분 구합니다. 사례금 드릴게요 제발요 ㅠㅜㅠㅜ'
+      'content':'공대 3층 여자화장실 휴지 가져다주실 분 구합니다. 사례금 드릴게요 제발요 ㅠㅜㅠㅜ',
+      'commentsList': [
+        {
+          'username': '투슬리스',
+          'comment': '교수님이 공지했어요!',
+          'time': DateTime.now().subtract(Duration(minutes: 10)),
+        },
+      ],
     },
   ];
 
@@ -201,6 +220,9 @@ class _MainContentState extends State<MainContent> {
                         category: post['category']!,
                         author: post['author']!,
                         content: post['content']!,
+                        commentsList: (post['commentsList'] as List<dynamic>)
+                            .map((item) => item as Map<String, dynamic>)
+                            .toList(),
                       ),
                     ),
                   );
@@ -246,6 +268,7 @@ class _MainContentState extends State<MainContent> {
                     ? DateTime.parse(post['createdAt'])
                     : post['createdAt'] as DateTime,
                 content: post['content'],
+                commentsList: post['commentsList'],
                 onCommentChanged: (newCount) => widget.updateComments(originalIndex, newCount),
               );
             },
