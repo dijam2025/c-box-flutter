@@ -29,13 +29,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   final TextEditingController _commentController = TextEditingController();
 
   // 댓글 목록을 저장할 리스트!
-  final List<Map<String, dynamic>> _comments = [
-    {
-      'username': '사용자2',
-      'comment': '저요! 어디에 계신가요?',
-      'time': '58분 전',
-    },
-  ];
+  final List<Map<String, dynamic>> _comments = [];
 
   void _addComment() async{
     final text = _commentController.text.trim();
