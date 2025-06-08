@@ -82,6 +82,7 @@ class _RentalRegisterPageState extends State<RentalRegisterPage> {
                 // ✅ SharedPreferences에서 관리자 권한(role) 확인
                 final prefs = await SharedPreferences.getInstance();
                 final role = prefs.getString('role');
+                final token = prefs.getString('token');
 
                 // ✅ 관리자(role == 'ADMIN')가 아닐 경우 등록 차단
                 if (role != 'ADMIN') {
@@ -106,7 +107,7 @@ class _RentalRegisterPageState extends State<RentalRegisterPage> {
                 final userId = prefs.getString('userId');
 
                 // ✅ 백엔드로 POST 요청
-                final url = Uri.parse('http://172.30.1.58:8080/rental/rent'); // 실제 주소로 수정
+                final url = Uri.parse('http://172.30.1.12:8080/rental/rent'); // 실제 주소로 수정
                 final body = jsonEncode({
                   'item': itemName,
                   'college': selectedCollege,
@@ -116,7 +117,10 @@ class _RentalRegisterPageState extends State<RentalRegisterPage> {
 
                 final response = await http.post(
                   url,
-                  headers: {'Content-Type': 'application/json'},
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer $token', //JWT 추가
+                  },
                   body: body,
                 );
 

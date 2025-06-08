@@ -89,20 +89,36 @@ class SettingsPage extends StatelessWidget {
             icon: Icons.logout,
             title: '로그아웃',
             onTap: () async {
-              final response = await http.put(
-                Uri.parse('http://172.30.1.58:8080/users/logout'),
+
+              final prefs = await SharedPreferences.getInstance();
+              final token = prefs.getString('jwt');
+              print('현재 토큰: $token');
+
+              if (token == null) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('로그인 정보가 없습니다.')));
+                return;
+              }
+
+              final response = await http.post(
+                  Uri.parse('http://172.30.1.12:8080/users/logout'),
+                headers: {
+                  'Authorization': 'Bearer $token',
+                },
               );
 
               if (response.statusCode == 200) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('로그아웃 성공')),
-                );
-                // 로그인 페이지로 이동 (필요시 수정)
+                // 클라이언트에서 JWT 토큰 삭제
+                await prefs.remove('jwt');  // 저장된 JWT 삭제
+
+                // 로그아웃 성공
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('로그아웃 성공')));
                 Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('로그아웃 실패')),
-                );
+
+                // 로그아웃 실패
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('로그아웃 실패')));
+                print('로그아웃 응답 상태 코드: ${response.statusCode}');
+                print('로그아웃 응답 본문: ${response.body}');
               }
             },
           ),
@@ -122,7 +138,7 @@ class SettingsPage extends StatelessWidget {
               }
 
               final response = await http.delete(
-                Uri.parse('http://172.30.1.58:8080/users/delete/$userId'),
+                Uri.parse('http://172.30.1.12:8080/users/delete/$userId'),
               );
 
               if (response.statusCode == 200) {

@@ -17,7 +17,7 @@ class _SignupPageState extends State<SignupPage> {
   final _emailController = TextEditingController();
 
   Future<void> _signup() async {
-    final url = Uri.parse('http://172.30.1.58:8080/users/signup');
+    final url = Uri.parse('http://172.30.1.12:8080/users/signup');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},

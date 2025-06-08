@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'settings_page.dart';
-import 'post_list_page.dart';      // 내 게시글 화면
-import 'rental_status_page.dart'; // 대여현황 화면
+import 'post_list_page.dart';
+import 'rental_status_page.dart';
 import '../widgets/custom_app_bar_title.dart';
 import '../widgets/bottom_nav_bar.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({Key? key}) : super(key: key);
@@ -14,19 +16,60 @@ class MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<MyPage> {
-  String userName = '사용자'; // 초기값 설정
+  String userName = '사용자';
 
   @override
   void initState() {
     super.initState();
-    _loadUserName();
+    _loadUserInfo();
   }
 
-  Future<void> _loadUserName() async {
+  Future<void> _loadUserInfo() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('jwt');
+      print('hi');
+      print('현재 토큰: $token');
+      print('hi');
+
+      final response = await http.get(
+        Uri.parse('http://172.30.1.12:8080/users/mypage'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print('응답 상태 코드: ${response.statusCode}');
+      print('응답 본문: ${response.body}');
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final serverName = data['name'] ?? '이름 없음';
+
+        setState(() => userName = serverName);
+        if (token != null) {
+          await prefs.setString('jwt', token);
+        }
+      } else if (response.statusCode == 403 || response.statusCode == 401) {
+        await prefs.clear();
+        _goToLogin();
+      } else {
+        print('서버 응답 오류: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('네트워크 에러: $e');
+    }
+  }
+
+
+  void _goToLogin() {
+    if (!mounted) return;
+    Navigator.pushReplacementNamed(context, '/login');
+  }
+
+  Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      userName = prefs.getString('username') ?? '이름 없음';
-    });
+    await prefs.clear();
+    _goToLogin();
   }
 
   @override
@@ -37,12 +80,17 @@ class _MyPageState extends State<MyPage> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: _logout,
+            tooltip: '로그아웃',
+          ),
+        ],
       ),
       body: ListView(
         children: [
           const SizedBox(height: 24),
-
-          // 프로필 영역
           Center(
             child: Column(
               children: [
@@ -54,16 +102,13 @@ class _MyPageState extends State<MyPage> {
                 const SizedBox(height: 12),
                 Text(
                   userName,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
           ),
-
           const SizedBox(height: 32),
           const Divider(),
-
-          // 대여현황
           _buildMenuTile(
             context,
             icon: Icons.shopping_bag_outlined,
@@ -74,11 +119,8 @@ class _MyPageState extends State<MyPage> {
                 MaterialPageRoute(builder: (_) => const RentalStatusPage()),
               );
             },
-
           ),
           const Divider(height: 1),
-
-          // 내 게시글
           _buildMenuTile(
             context,
             icon: Icons.article_outlined,
@@ -91,8 +133,6 @@ class _MyPageState extends State<MyPage> {
             },
           ),
           const Divider(height: 1),
-
-          // 설정
           _buildMenuTile(
             context,
             icon: Icons.settings_outlined,

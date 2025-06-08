@@ -1,3 +1,4 @@
+import 'package:c_box/screens/rental_page.dart';
 import 'package:flutter/material.dart';
 import 'rental_status_page.dart';
 import '../screens/mission_home.dart';
@@ -69,7 +70,7 @@ class HomeMenuPage extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const RentalStatusPage()),
+                        MaterialPageRoute(builder: (context) => const RentalPage()),
                       );
                     },
                   ),

@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../screens/rental_page.dart';
+import '../screens/rental_qr_page.dart';
 import '../screens/return_page.dart';
-import '../screens/mission_home.dart';
 import '../widgets/custom_app_bar_title.dart';
 import '../widgets/bottom_nav_bar.dart';
-import 'utils/shared_preferences_util.dart';
-
+import '../screens/rental_status_provider.dart';
+import 'package:provider/provider.dart';
 
 class RentalStatusPage extends StatefulWidget {
   const RentalStatusPage({super.key});
@@ -17,34 +14,11 @@ class RentalStatusPage extends StatefulWidget {
 }
 
 class _RentalStatusPageState extends State<RentalStatusPage> {
-  List<Map<String, dynamic>> myRentals = [];
-
-  @override
-  void initState() {
-    super.initState();
-    fetchMyRentalStatus();
-  }
-
-  Future<void> fetchMyRentalStatus() async {
-    final userId = await SharedPreferencesUtil.getUserId();
-    final url = Uri.parse('http://172.30.1.58:8080/users/mypage/rental?userId=$userId');
-
-    final response = await http.get(url, headers: {
-      'Content-Type': 'application/json',
-    });
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      setState(() {
-        myRentals = List<Map<String, dynamic>>.from(data); // ✅ 이미 userId로 필터된 상태라고 가정
-      });
-    } else {
-      print('불러오기 실패: ${response.statusCode}');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    final myRentals = context.watch<RentalStatusProvider>().myRentals;
+    final rentalProvider = context.read<RentalStatusProvider>();
     return Scaffold(
       appBar: AppBar(
         title: const CustomAppBarTitle(),
@@ -56,10 +30,10 @@ class _RentalStatusPageState extends State<RentalStatusPage> {
       body: Column(
         children: [
           const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
-              children: const [
+              children: [
                 Text("📦 대여중인 물품", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ],
             ),
@@ -92,46 +66,18 @@ class _RentalStatusPageState extends State<RentalStatusPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          rental['item'] ?? rental['name'] ?? '이름 없음',
+                          rental['item'] ?? '이름 없음',
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          "반납 예정일: ${rental['dueDate']?.substring(0, 10) ?? 'N/A'}",
+                          "반납 예정일: ${rental['dueDate']}",
                           style: const TextStyle(color: Colors.grey),
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          "상태: ${rental['statusMessage'] ?? ''}",
+                          "상태: ${rental['statusMessage']}",
                           style: const TextStyle(color: Colors.grey),
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ReturnPage(
-                                    myRentals: myRentals,
-                                    onReturnComplete: (removedIndex) {
-                                      setState(() {
-                                        myRentals.removeAt(removedIndex);
-                                      });
-                                    },
-                                  ),
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.indigo,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: const Text("반납하기"),
-                          ),
                         ),
                       ],
                     ),
@@ -151,12 +97,17 @@ class _RentalStatusPageState extends State<RentalStatusPage> {
                       final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const RentalPage(),
+                          builder: (_) => const QRScanPage(
+                            itemName: "우산 #1",
+                            isRenting: true,
+                          ),
                         ),
                       );
-                      if (result != null) {
-                        await fetchMyRentalStatus(); // ✅ 추가된 부분
+
+                      if (result != null && result is Map<String, dynamic>) {
+                        rentalProvider.addRental(result); // ✅ Provider 사용
                       }
+
                     },
                     icon: const Icon(Icons.shopping_cart),
                     label: const Text("대여하러 가기"),
@@ -173,17 +124,15 @@ class _RentalStatusPageState extends State<RentalStatusPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () async {
-                      await Navigator.push(
+                    onPressed: () {
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => ReturnPage(
                             myRentals: myRentals,
-                            onReturnComplete: (index) {
-                              setState(() {
-                                myRentals.removeAt(index);
-                              });
-                            },
+                              onReturnComplete: (index) {
+                                rentalProvider.removeRental(index); // ✅ Provider 사용
+                              }
                           ),
                         ),
                       );
