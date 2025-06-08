@@ -151,11 +151,11 @@ class _MainContentState extends State<MainContent> {
 
     final hotPosts = [
       {
-        'title': '공대 3층 화장실에 휴지가 없어요 ㅜㅜㅜ',
+        'title': '디버깅 중 잠시만요',
         'subtitle': '댓글 12',
         'category': '요청',
         'author': '익명1',
-        'content': '공대 3층 여자 화장실에 휴지가 다 떨어졌어요. 급해요ㅠㅠ'
+        'content': '디버깅 12시간 째 실화냐?'
       },
       {
         'title': '자바 스터디 하실 분 구합니다',
