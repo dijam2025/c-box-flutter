@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../screens/post_detail_page.dart';
 
-
 class PostCard extends StatefulWidget {
   final String category;
   final String title;
@@ -10,6 +9,7 @@ class PostCard extends StatefulWidget {
   final DateTime createdAt;
   final String author;
   final String content;
+  final List<Map<String, dynamic>>? commentsList;
   final void Function(int)? onCommentChanged;
 
   const PostCard({
@@ -20,6 +20,7 @@ class PostCard extends StatefulWidget {
     required this.createdAt,
     required this.author,
     required this.content,
+    required this.commentsList,
     this.onCommentChanged,
   });
 
@@ -117,6 +118,7 @@ class _PostCardState extends State<PostCard> {
                         category: widget.category,
                         author: widget.author, // SharedPreferences에서 불러온 이름!
                         content: widget.content,
+                        commentsList: widget.commentsList ?? [],
                         onCommentAdded: widget.onCommentChanged, // 댓글 수 전달!
                       ),
                     ),

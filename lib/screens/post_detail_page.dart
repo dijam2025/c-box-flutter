@@ -8,6 +8,7 @@ class PostDetailPage extends StatefulWidget {
   final String category;
   final String author;
   final String content;
+  final List<Map<String, dynamic>> commentsList;
   final void Function(int)? onCommentAdded;
 
   const PostDetailPage({
@@ -16,10 +17,9 @@ class PostDetailPage extends StatefulWidget {
     required this.category,
     required this.author,
     required this.content,
+    required this.commentsList,
     this.onCommentAdded,
   });
-
-
 
   @override
   State<PostDetailPage> createState() => _PostDetailPageState();
@@ -28,20 +28,19 @@ class PostDetailPage extends StatefulWidget {
 class _PostDetailPageState extends State<PostDetailPage> {
   final TextEditingController _commentController = TextEditingController();
 
-  // 댓글 목록을 저장할 리스트!
-  final List<Map<String, dynamic>> _comments = [
-    {
-      'username': '사용자2',
-      'comment': '저요! 어디에 계신가요?',
-      'time': '58분 전',
-    },
-  ];
+  late List<Map<String, dynamic>> _comments;
 
-  void _addComment() async{
+  @override
+  void initState() {
+    super.initState();
+    _comments = widget.commentsList.map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e)).toList();
+    timeago.setLocaleMessages('ko', timeago.KoMessages());
+  }
+
+  void _addComment() async {
     final text = _commentController.text.trim();
     if (text.isEmpty) return;
 
-    // ✅ SharedPreferences에서 사용자 이름 꺼내오기
     final prefs = await SharedPreferences.getInstance();
     final username = prefs.getString('username') ?? '익명';
 
@@ -49,17 +48,11 @@ class _PostDetailPageState extends State<PostDetailPage> {
       _comments.insert(0, {
         'username': username,
         'comment': text,
-        'time': DateTime.now(), // 시간 객체 저장!
+        'time': DateTime.now(),
       });
       _commentController.clear();
       widget.onCommentAdded?.call(_comments.length);
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    timeago.setLocaleMessages('ko', timeago.KoMessages());
   }
 
   @override
@@ -120,14 +113,18 @@ class _PostDetailPageState extends State<PostDetailPage> {
             const SizedBox(height: 16),
 
             // 이미지
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                'assets/images/laptop.jpg',
-                fit: BoxFit.cover,
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 40.0), // 위아래 여백 40씩!
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.asset(
+                    'assets/images/c_box.png',
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 16),
 
             // 댓글 입력창
             Row(
